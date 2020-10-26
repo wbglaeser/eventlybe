@@ -7,7 +7,7 @@ use rocket::{Request, Data, Outcome::*};
 
 #[derive(Debug, Clone)]
 pub struct EventDetails<'a> {
-    name: &'a str,
+    pub name: &'a str,
 }
 
 pub enum EventDetailsError {
