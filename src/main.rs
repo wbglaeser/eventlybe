@@ -2,9 +2,10 @@
 #[macro_use] extern crate rocket;
 
 use backend::*;
+use rocket_contrib::json::Json;
 
-#[post("/", data = "<input>")]
-fn new(input: EventDetails) -> String {
+#[post("/", format="json", data = "<input>")]
+fn new(input: Json<EventDetails>) -> String {
     input.name.to_string()
 }
 
