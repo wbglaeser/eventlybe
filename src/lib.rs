@@ -1,5 +1,6 @@
 use serde::{Serialize, Deserialize};
-#[macro_use] extern crate rocket;
+#[macro_use]
+extern crate rocket;
 
 const EventDetails_LIMIT: u64 = 256;
 
@@ -8,4 +9,23 @@ pub struct EventDetails {
     pub name: String,
     date: String,
     location: String
+}
+
+#[macro_use]
+extern crate diesel;
+extern crate dotenv;
+
+pub mod models;
+pub mod schema;
+
+use diesel::prelude::*;
+use dotenv::dotenv;
+use std::env;
+
+pub fn establish_connection() -> PgConnection {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url)
+        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
