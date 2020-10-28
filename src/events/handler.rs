@@ -14,7 +14,7 @@ pub fn all(connection: DbConn) -> Result<Json<Vec<Event>>, Status> {
         .map_err(|error| error_status(error))
 }
 
-#[post("/", format = "application/json", data = "<event>")]
+#[post("/", data = "<event>")]
 pub fn post(event: Json<events::repository::InsertableEvent>, connection: DbConn) -> Result<status::Created<Json<Event>>, Status> {
     events::repository::insert(event.into_inner(), &connection)
         .map(|event| event_created(event))
