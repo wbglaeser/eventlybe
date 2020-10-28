@@ -7,11 +7,35 @@ use rocket::http::Status;
 use rocket::response::status;
 use rocket_contrib::json::Json;
 
+#[get("/")]
+pub fn all(connection: DbConn) -> Result<Json<Vec<Event>>, Status> {
+    events::repository::all(&connection)
+        .map(|event| Json(event))
+        .map_err(|error| error_status(error))
+}
+
 #[post("/", format = "application/json", data = "<event>")]
-pub fn post(event: Json<Event>, connection: DbConn) -> Result<status::Created<Json<Event>>, Status> {
+pub fn post(event: Json<events::repository::InsertableEvent>, connection: DbConn) -> Result<status::Created<Json<Event>>, Status> {
     events::repository::insert(event.into_inner(), &connection)
         .map(|event| event_created(event))
         .map_err(|error| error_status(error))
+}
+
+#[get("/<id>")]
+pub fn get(id: i32, connection: DbConn) -> Result<Json<Event>, Status> {
+    events::repository::get(id, &connection)
+        .map(|event| Json(event))
+        .map_err(|error| error_status(error))
+}
+
+#[delete("/<id>")]
+pub fn delete(id: i32, connection: DbConn) -> Result<Status, Status> {
+    match events::repository::get(id, &connection) {
+        Ok(_) => events::repository::delete(id, &connection)
+            .map(|_| Status::NoContent)
+            .map_err(|error| error_status(error)),
+        Err(error) => Err(error_status(error))
+    }
 }
 
 fn event_created(event: Event) -> status::Created<Json<Event>> {

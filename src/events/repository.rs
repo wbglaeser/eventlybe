@@ -5,15 +5,28 @@ use diesel::prelude::*;
 use crate::schema::events;
 use crate::events::Event;
 
-pub fn insert(event: Event, connection: &PgConnection) -> QueryResult<Event> {
+pub fn all(connection: &PgConnection) -> QueryResult<Vec<Event>> {
+    events::table.load::<Event>(&*connection)
+}
+
+pub fn insert(event: InsertableEvent, connection: &PgConnection) -> QueryResult<Event> {
     diesel::insert_into(events::table)
-        .values(&InsertableEvent::from_event(event))
+        .values(&event)
         .get_result(connection)
 }
 
-#[derive(Insertable)]
+pub fn get(id: i32, connection: &PgConnection) -> QueryResult<Event> {
+    events::table.find(id).get_result::<Event>(connection)
+}
+
+pub fn delete(id: i32, connection: &PgConnection) -> QueryResult<usize> {
+    diesel::delete(events::table.find(id))
+        .execute(connection)
+}
+
+#[derive(Insertable, Queryable, AsChangeset, Serialize, Deserialize)]
 #[table_name = "events"]
-struct InsertableEvent {
+pub struct InsertableEvent {
     name: String,
     date: String,
     location: String,
