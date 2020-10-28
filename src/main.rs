@@ -1,35 +1,20 @@
-#![feature(proc_macro_hygiene, decl_macro)]
+#![feature(decl_macro, proc_macro_hygiene)]
 #[macro_use] extern crate rocket;
-
-use backend::*;
-use rocket_contrib::json::Json;
-
-#[post("/", format="json", data = "<input>")]
-fn new(input: Json<EventDetails>) -> String {
-    input.name.to_string()
-}
-
-extern crate backend;
 #[macro_use] extern crate diesel;
+extern crate dotenv;
+extern crate r2d2;
+extern crate r2d2_diesel;
+extern crate rocket_contrib;
+#[macro_use]
+extern crate serde_derive;
 
-use self::backend::*;
-use self::models::*;
-use self::diesel::prelude::*;
+use dotenv::dotenv;
+
+mod events;
+mod schema;
+mod connection;
 
 fn main() {
-    use self::schema::events::dsl::*;
-
-    let connection = establish_connection();
-    let results = events.limit(5)
-        .load::<Event>(&connection)
-        .expect("Error loading posts");
-
-    println!("Displaying {} events", results.len());
-    for event in results {
-        println!("{}", event.name);
-        println!("----------\n");
-        println!("{}", event.date);
-    }
-
-    rocket::ignite().mount("/", routes![new]).launch();
+    dotenv().ok();
+    events::router::create_routes();
 }
