@@ -11,10 +11,12 @@ extern crate serde_derive;
 use dotenv::dotenv;
 
 mod events;
+mod users;
 mod schema;
 mod connection;
 
 fn main() {
     dotenv().ok();
     events::router::create_routes();
+    users::router::create_routes();
 }

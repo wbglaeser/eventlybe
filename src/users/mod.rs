@@ -1,5 +1,5 @@
 #![allow(proc_macro_derive_resolution_fallback)]
-use super::schema::events;
+use super::schema::users;
 
 pub mod handler;
 pub mod router;
@@ -7,10 +7,9 @@ pub mod repository;
 pub mod cors;
 
 #[derive(Queryable, AsChangeset, Serialize, Deserialize)]
-#[table_name = "events"]
-pub struct Event {
+#[table_name = "users"]
+pub struct User {
     id: i32,
-    name: String,
-    date: String,
-    location: String,
+    pub name: String,
+    pub password: String
 }
