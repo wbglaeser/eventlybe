@@ -5,16 +5,23 @@ use diesel::prelude::*;
 use crate::schema::users;
 use crate::users::User;
 
-pub fn post(user: User, connection: &PgConnection) -> QueryResult<bool> {
-    let query_result = users::table.select(
-        (users::name.eq(user.name), users::password.eq(user.password))
-    ).get_results::<Vec<User>>(connection);
-
-    let result = match query_result {
+    pub fn post(user: QueryableUser, connection: &PgConnection) -> QueryResult<bool> {
+    match users::table.filter(
+        users::name.eq(user.name)
+    ).filter(
+        users::password.eq(user.password)
+    ).get_results::<User>(&*connection) {
         Ok(users) => {
             if users.len() == 1 { return Ok(true) }
             else { return Ok(false) }
         },
         Err(e) => return Err(e),
-    };
+    }
+}
+
+#[derive(Queryable, AsChangeset, Serialize, Deserialize)]
+#[table_name = "users"]
+pub struct QueryableUser {
+    name: String,
+    password: String
 }

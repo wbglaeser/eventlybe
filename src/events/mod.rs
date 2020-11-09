@@ -2,9 +2,7 @@
 use super::schema::events;
 
 pub mod handler;
-pub mod router;
 pub mod repository;
-pub mod cors;
 
 #[derive(Queryable, AsChangeset, Serialize, Deserialize)]
 #[table_name = "events"]

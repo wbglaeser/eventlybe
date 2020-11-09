@@ -14,9 +14,10 @@ mod events;
 mod users;
 mod schema;
 mod connection;
+mod router;
+mod cors;
 
 fn main() {
     dotenv().ok();
-    events::router::create_routes();
-    users::router::create_routes();
+    router::create_routes();
 }

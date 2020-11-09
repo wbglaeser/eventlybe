@@ -31,14 +31,3 @@ pub struct InsertableEvent {
     date: String,
     location: String,
 }
-
-impl InsertableEvent {
-
-    fn from_event(event: Event) -> InsertableEvent {
-        InsertableEvent {
-            name: event.name,
-            date: event.date,
-            location: event.location
-        }
-    }
-}
