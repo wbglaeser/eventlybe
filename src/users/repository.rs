@@ -5,7 +5,7 @@ use diesel::prelude::*;
 use crate::schema::users;
 use crate::users::User;
 
-    pub fn post(user: QueryableUser, connection: &PgConnection) -> QueryResult<bool> {
+pub fn validate(user: InsertableUser, connection: &PgConnection) -> QueryResult<bool> {
     match users::table.filter(
         users::name.eq(user.name)
     ).filter(
@@ -19,9 +19,18 @@ use crate::users::User;
     }
 }
 
-#[derive(Queryable, AsChangeset, Serialize, Deserialize)]
+pub fn insert(user: InsertableUser, connection: &PgConnection) -> QueryResult<bool> {
+    match diesel::insert_into(users::table)
+        .values(&user)
+        .get_result::<User>(connection) {
+            Ok(users) => return Ok(true),
+            Err(e) => return Err(e)
+        }
+}
+
+#[derive(Insertable, Queryable, AsChangeset, Serialize, Deserialize)]
 #[table_name = "users"]
-pub struct QueryableUser {
+pub struct InsertableUser {
     name: String,
     password: String
 }

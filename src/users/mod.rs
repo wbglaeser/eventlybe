@@ -4,7 +4,7 @@ use super::schema::users;
 pub mod handler;
 pub mod repository;
 
-#[derive(Queryable, AsChangeset, Serialize, Deserialize)]
+#[derive(Insertable, Queryable, AsChangeset, Serialize, Deserialize)]
 #[table_name = "users"]
 pub struct User {
     id: i32,
