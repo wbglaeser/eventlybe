@@ -12,6 +12,7 @@ use dotenv::dotenv;
 
 mod events;
 mod users;
+mod sessions;
 mod schema;
 mod connection;
 mod router;

@@ -6,9 +6,11 @@ use rocket::http::Status;
 use rocket_contrib::json::Json;
 use rocket::response::status;
 use std::env;
+use rocket::http::{Cookies, Cookie};
 
 #[post("/validate", data = "<user>")]
-pub fn validate(user: Json<users::repository::InsertableUser>, connection: DbConn) -> Result<Json<bool>, Status> {
+pub fn validate(user: Json<users::repository::InsertableUser>, connection: DbConn, mut cookies: Cookies) -> Result<Json<bool>, Status> {
+    cookies.add(Cookie::new("name", "value"));
     users::repository::validate(user.into_inner(), &connection)
         .map(|auth| Json(auth))
         .map_err(|error| error_status(error))

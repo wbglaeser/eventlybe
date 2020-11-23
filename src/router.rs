@@ -1,5 +1,6 @@
 use crate::events;
 use crate::users;
+use crate::sessions;
 use rocket;
 use crate::connection;
 use crate::cors;

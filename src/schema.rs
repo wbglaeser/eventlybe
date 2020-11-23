@@ -14,3 +14,10 @@ table! {
         password -> Text,
     }
 }
+
+table! {
+    sessions (id) {
+        id -> Integer,
+        sessionid -> Text,
+    }
+}
