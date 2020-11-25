@@ -17,7 +17,9 @@ pub fn create_routes() {
                events::handler::delete],
         ).mount("/users",
                routes![
-               users::handler::validate,
+               users::handler::login,
+               users::handler::logout,
+               users::handler::validate_session,
                users::handler::register],
         ).launch();
 }

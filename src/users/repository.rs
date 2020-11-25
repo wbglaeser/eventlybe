@@ -4,6 +4,14 @@ use diesel;
 use diesel::prelude::*;
 use crate::schema::users;
 use crate::users::User;
+use rocket::http::{Cookies, Cookie};
+
+
+
+pub fn register_session(mut cookies: Cookies) {
+    cookies.add_private(Cookie::new("user_id_session", "value"));
+
+}
 
 pub fn validate(user: InsertableUser, connection: &PgConnection) -> QueryResult<bool> {
     match users::table.filter(

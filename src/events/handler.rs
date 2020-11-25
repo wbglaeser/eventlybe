@@ -2,6 +2,7 @@ use crate::connection::DbConn;
 use diesel::result::Error;
 use std::env;
 use crate::events;
+use crate::sessions;
 use events::Event;
 use rocket::http::Status;
 use rocket::response::status;
@@ -17,7 +18,7 @@ pub fn all(connection: DbConn) -> Result<Json<Vec<Event>>, Status> {
 
 #[post("/", data = "<event>")]
 pub fn post(event: Json<events::repository::InsertableEvent>, connection: DbConn, mut cookies: Cookies) -> Result<status::Created<Json<Event>>, Status> {
-    cookies.add(Cookie::new("name_", "value1"));
+    sessions::repository::validate_session(cookies, &connection);
     events::repository::insert(event.into_inner(), &connection)
         .map(|event| event_created(event))
         .map_err(|error| error_status(error))

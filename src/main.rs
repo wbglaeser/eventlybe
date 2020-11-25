@@ -7,7 +7,8 @@ extern crate r2d2_diesel;
 extern crate rocket_contrib;
 #[macro_use]
 extern crate serde_derive;
-
+extern crate time;
+extern crate rand;
 use dotenv::dotenv;
 
 mod events;
