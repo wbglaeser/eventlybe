@@ -8,5 +8,6 @@ pub mod repository;
 #[table_name = "sessions"]
 pub struct Session {
     id: i32,
+    userid: String,
     sessionid: String
 }

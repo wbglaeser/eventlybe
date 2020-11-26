@@ -8,6 +8,7 @@ use rocket::response::status;
 use std::env;
 use rocket::http::{Cookies, Cookie};
 use crate::sessions;
+use users::repository::InsertableUser;
 
 #[post("/validate_session")]
 pub fn validate_session(connection: DbConn, mut cookies: Cookies) -> Result<Json<bool>, Status> {
@@ -17,11 +18,11 @@ pub fn validate_session(connection: DbConn, mut cookies: Cookies) -> Result<Json
 }
 
 #[post("/login", data = "<user>")]
-pub fn login(user: Json<users::repository::InsertableUser>, connection: DbConn, mut cookies: Cookies) -> Result<Json<bool>, Status> {
+pub fn login(user: Json<InsertableUser>, connection: DbConn, mut cookies: Cookies) -> Result<Json<bool>, Status> {
     users::repository::validate(user.into_inner(), &connection)
-        .map(|auth| {
-            sessions::repository::register_session(cookies, &connection);
-            Json(auth)
+        .map(|user| {
+            sessions::repository::register_session(user, cookies, &connection);
+            Json(true)
         })
         .map_err(|error| error_status(error))
 }

@@ -1,6 +1,6 @@
 table! {
     events (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
         date -> Text,
         location -> Text,
@@ -9,7 +9,7 @@ table! {
 
 table! {
     users (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
         password -> Text,
     }
@@ -17,7 +17,13 @@ table! {
 
 table! {
     sessions (id) {
-        id -> Integer,
+        id -> Int4,
+        userid -> Text,
         sessionid -> Text,
     }
 }
+
+allow_tables_to_appear_in_same_query!(
+    events,
+    sessions,
+);

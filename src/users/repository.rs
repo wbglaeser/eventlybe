@@ -5,23 +5,23 @@ use diesel::prelude::*;
 use crate::schema::users;
 use crate::users::User;
 use rocket::http::{Cookies, Cookie};
-
-
+use diesel::result::Error;
 
 pub fn register_session(mut cookies: Cookies) {
     cookies.add_private(Cookie::new("user_id_session", "value"));
 
 }
 
-pub fn validate(user: InsertableUser, connection: &PgConnection) -> QueryResult<bool> {
+pub fn validate(user: InsertableUser, connection: &PgConnection) -> QueryResult<InsertableUser> {
     match users::table.filter(
-        users::name.eq(user.name)
+        users::name.eq(&user.name)
     ).filter(
-        users::password.eq(user.password)
+        users::password.eq(&user.password)
     ).get_results::<User>(&*connection) {
         Ok(users) => {
-            if users.len() == 1 { return Ok(true) }
-            else { return Ok(false) }
+            if (users.len()==1) {return Ok(user)}
+            else { return Err(Error::NotFound)}
+
         },
         Err(e) => return Err(e),
     }
@@ -39,6 +39,6 @@ pub fn insert(user: InsertableUser, connection: &PgConnection) -> QueryResult<bo
 #[derive(Insertable, Queryable, AsChangeset, Serialize, Deserialize)]
 #[table_name = "users"]
 pub struct InsertableUser {
-    name: String,
+    pub name: String,
     password: String
 }

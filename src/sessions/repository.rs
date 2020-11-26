@@ -4,6 +4,8 @@ use diesel;
 use diesel::prelude::*;
 use crate::schema::sessions;
 use crate::sessions::Session;
+use crate::schema::users;
+use crate::users::repository::InsertableUser;
 use rocket::http::{Cookies, Cookie};
 use rand::Rng;
 use rand::distributions::Alphanumeric;
@@ -16,9 +18,9 @@ pub fn generate_random_key() -> String {
         .collect::<String>()
 }
 
-pub fn register_session(mut cookies: Cookies, connection: &PgConnection) {
+pub fn register_session(user: InsertableUser, mut cookies: Cookies, connection: &PgConnection) {
     let secrect_key = generate_random_key();
-    insert(&secrect_key, &connection);
+    insert(user, &secrect_key, &connection);
     cookies.add_private(Cookie::new("user_id_session", secrect_key));
 }
 
@@ -27,8 +29,11 @@ pub fn end_session(mut cookies: Cookies, connection: &PgConnection) -> QueryResu
     return Ok(true)
 }
 
-pub fn insert(secrect_key: &String, connection: &PgConnection) -> QueryResult<bool> {
-    let newSessions = InsertableSession{sessionid:secrect_key.to_string()};
+pub fn insert(user: InsertableUser, secrect_key: &String, connection: &PgConnection) -> QueryResult<bool> {
+    let newSessions = InsertableSession{
+        userid:user.name,
+        sessionid:secrect_key.to_string()
+    };
     match diesel::insert_into(sessions::table)
         .values(&newSessions)
         .get_result::<Session>(connection) {
@@ -43,14 +48,12 @@ pub fn insert(secrect_key: &String, connection: &PgConnection) -> QueryResult<bo
 //}
 
 pub fn validate_session(mut cookies: Cookies, connection: &PgConnection) -> QueryResult<bool> {
-    println!("hi there {:?}", cookies.get_private("user_id_session"));
     match cookies.get_private("user_id_session") {
         Some(cookie) => {
             match sessions::table.filter(
                     sessions::sessionid.eq(cookie.value().to_string())
                 ).get_results::<Session>(&*connection) {
                     Ok(sessions) => {
-                        println!("checking for session OKOK");
                         if sessions.len() == 1 {
                             return Ok(true)
                         }
@@ -70,5 +73,6 @@ pub fn get(id: i32, connection: &PgConnection) -> QueryResult<Session> {
 #[derive(Insertable, Queryable, AsChangeset, Serialize, Deserialize)]
 #[table_name = "sessions"]
 pub struct InsertableSession {
+    pub userid: String,
     pub sessionid: String
 }
